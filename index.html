@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICC - International Container Co.</title>
+    <style>
+        /* 1. FONT IMPORT */
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap');
+
+        /* 2. CSS VARIABLES & THEMES */
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-color-muted: #c0c0c0;
+            --glass-bg: rgba(25, 25, 25, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: rgba(0, 0, 0, 0.25);
+            --tag-bg: rgba(255, 255, 255, 0.1);
+            --dot-color: rgba(255, 255, 255, 0.07);
+            --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            --placeholder-color: rgba(255, 255, 255, 0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1c1e;
+            --text-color-muted: #5a5a5f;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --tag-bg: rgba(0, 0, 0, 0.05);
+            --dot-color: rgba(0, 0, 0, 0.07);
+            --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23000000' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            --placeholder-color: rgba(0, 0, 0, 0.4);
+        }
+
+        /* 3. CSS RESET & BODY LAYOUT */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Manrope', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            position: relative; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* 4. UNIFIED CONTAINER */
+        .container { width: 90%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+        /* 5. INTERACTIVE BACKGROUND */
+        .background-wrapper { 
+            position: fixed; 
+            width: 100%; 
+            height: 100%; 
+            top: 0; 
+            left: 0; 
+            z-index: -1; 
+            overflow: hidden;
+            background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+        
+        /* 6. HEADER & NAVIGATION */
+        header { position: fixed; top: 20px; left: 0; right: 0; z-index: 100; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; position: relative; background: var(--glass-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: 0 4px 20px var(--glass-shadow); transition: background 0.3s ease, border 0.3s ease; }
+        .logo { font-weight: 800; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: var(--text-color); cursor: pointer; text-decoration: none; }
+        .logo-text { font-size: 1rem; font-weight: 400; opacity: 0.8; }
+        .nav-right { display: flex; align-items: center; gap: 2rem; }
+        .nav-links ul { list-style: none; display: flex; gap: 2rem; }
+        .nav-links a { color: var(--text-color); text-decoration: none; font-weight: 700; transition: color 0.3s ease; cursor: pointer; }
+        .nav-links a:hover { color: var(--text-color); opacity: 0.8; }
+        
+        /* Theme Toggle Button */
+        .theme-toggle-btn { background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; color: var(--text-color); }
+        .theme-toggle-btn svg { width: 24px; height: 24px; transition: transform 0.3s ease; }
+        .theme-toggle-btn:hover svg { transform: scale(1.1) rotate(15deg); }
+        body[data-theme='dark'] .icon-moon { display: none; }
+        body[data-theme='light'] .icon-sun { display: none; }
+        
+        /* 7. PAGE SECTIONS */
+        .page-section {
+            padding: 3rem 0;
+        }
+        #home {
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding-top: 100px; /* Pushes content down from header */
+        }
+        .hero-content { max-width: 1000px; }
+        .main-headline { display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; }
+        .main-headline span { display: block; text-align: center; }
+        .headline-1 { font-size: clamp(2.5rem, 10vw, 5rem); font-weight: 800; line-height: 1; }
+        /*.headline-2 { font-size: clamp(1.25rem, 5vw, 2.5rem); font-weight: 700; letter-spacing: 0.235em; text-transform: uppercase; padding-left: 0.235em; }*/
+        .headline-2 { font-size: clamp(1.25rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: 0.235em; text-transform: uppercase; padding-left: 0.235em; }
+        .headline-3 { margin-top: 0.5rem; font-size: clamp(0.7rem, 2.5vw, 1.195rem); color: var(--text-color-muted); letter-spacing: 0.57em; text-transform: uppercase; padding-left: 0.57em; }
+        .gradient-text { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 25%, #ec4899 50%, #f59e0b 75%, #10b981 100%); background-size: 200% 200%; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; animation: gradientShift 5s ease-in-out infinite; }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .sub-headline { font-size: clamp(1rem, 3vw, 1.1rem); color: var(--text-color-muted); line-height: 1.6; margin: 1rem auto 0; max-width: 600px; }
+        .hero-buttons { margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .hero-buttons .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.5rem; border-radius: 12px; border: none; cursor: pointer; font-family: 'Manrope', sans-serif; font-weight: 700; transition: all 0.3s ease; font-size: 1rem; text-decoration: none; }
+        .btn-primary { background: #ffffff; color: #000000; }
+        .btn-secondary { background: transparent; color: var(--text-color); border: 1px solid var(--glass-border); }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn svg { width: 1em; height: 1em; }
+        
+        /* 8. CONTENT-SPECIFIC STYLES */
+        .content-page-container { background: var(--glass-bg); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; width: 100%; box-shadow: 0 10px 40px var(--glass-shadow); margin: 0 auto; }
+        .section-title { text-align: center; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 3rem; color: var(--text-color); }
+        
+        /* Product Section */
+        .products-layout { display: grid; grid-template-columns: 25% 1fr; gap: 2rem; }
+        .products-sidebar { border-right: 1px solid var(--glass-border); padding-right: 2rem; }
+        .products-sidebar h3 { font-size: 1.2rem; margin-bottom: 1rem; }
+        .products-nav-list { list-style: none; }
+        .products-nav-list .main-product-item .sub-product-list { list-style: none; padding-left: 1rem; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+        .products-nav-list .main-product-item.open .sub-product-list { max-height: 500px; }
+        .main-product-title { font-weight: 800; font-size: 1.1rem; cursor: pointer; padding: 0.75rem 0; display: flex; justify-content: space-between; align-items: center; }
+        .main-product-title .arrow { transition: transform 0.3s ease; }
+        .main-product-item.open .main-product-title .arrow { transform: rotate(90deg); }
+        .sub-product-link { display: block; color: var(--text-color-muted); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 8px; margin: 0.25rem 0; transition: all 0.2s ease-in-out; }
+        .sub-product-link:hover { background: var(--tag-bg); color: var(--text-color); }
+        .sub-product-link.active { background: var(--tag-bg); color: var(--text-color); font-weight: 700; }
+        .product-content-area { padding-left: 2rem; }
+        .product-detail-layout { display: grid; grid-template-columns: 40% 1fr; gap: 2rem; align-items: start; }
+        #detail-image { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; }
+        #detail-title { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        #detail-model { font-weight: 700; color: var(--text-color-muted); margin-bottom: 1rem; }
+        #detail-desc { font-size: 1.1rem; line-height: 1.7; color: var(--text-color-muted); }
+        #detail-tags { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+        .usage-tag { padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700; }
+        .usage-tag.color-1 { background-color: #4285F4; color: white; } .usage-tag.color-2 { background-color: #9B72CB; color: white; } .usage-tag.color-3 { background-color: #D96570; color: white; } .usage-tag.color-4 { background-color: #F4B400; color: black; } .usage-tag.color-5 { background-color: #34A853; color: white; }
+
+        /* About Us Section */
+        #about .about-layout { display: grid; grid-template-columns: 30% 1fr; gap: 3rem; align-items: center; }
+        #about .about-image { width: 100%; height: auto; border-radius: 16px; object-fit: cover; }
+        #about .about-content .section-title { text-align: left; }
+
+        /* 9. CONTACT MODAL */
+        .contact-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .contact-modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .contact-modal-content {
+            width: 95%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            position: relative;
+            box-shadow: 0 10px 40px var(--glass-shadow);
+        }
+
+        .contact-modal-content .section-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .contact-form .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .contact-form .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .contact-form .form-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .contact-form .form-field label {
+            border: 0;
+            clip: rect(0 0 0 0);
+            height: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            width: 1px;
+        }
+
+        .contact-form input,
+        .contact-form select,
+        .contact-form textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background-color: var(--tag-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: 'Manrope', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .contact-form input:focus,
+        .contact-form select:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: var(--text-color-muted);
+            box-shadow: 0 0 0 3px var(--glass-border);
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+            color: var(--placeholder-color);
+            opacity: 1;
+        }
+
+        .contact-form textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .contact-form select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: var(--select-arrow);
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 16px;
+        }
+
+        .contact-form .submit-btn {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            background: #ffffff;
+            color: #000000;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .contact-form .submit-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .contact-form .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #form-status {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            min-height: 1.2rem;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--tag-bg);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .close-modal-btn:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+            transform: rotate(90deg);
+        }
+
+        .contact-form select option {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+        
+        /* 10. RESPONSIVE */
+        @media (min-width: 768px) { .nav-links { display: block; } }
+        @media (max-width: 900px) { 
+            .products-layout { grid-template-columns: 1fr; } 
+            .products-sidebar { border-right: none; border-bottom: 1px solid var(--glass-border); padding-right: 0; padding-bottom: 2rem; margin-bottom: 2rem; } 
+            .product-content-area { padding-left: 0; } 
+            #about .about-layout { grid-template-columns: 1fr; } 
+        }
+        @media (max-width: 640px) { 
+            .nav-right { gap: 1rem; } 
+            .nav-links { display: none; } 
+            .logo-text { display: none; } 
+            .product-detail-layout { grid-template-columns: 1fr; } 
+            .contact-modal-content { padding: 1.5rem; }
+            .contact-form .form-grid { grid-template-columns: 1fr; }
+        }
+
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="background-wrapper"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#home" class="logo">
+                    ICC
+                    <span class="logo-text">International Container Co.</span>
+                </a>
+                <div class="nav-right">
+                    <div class="nav-links">
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#products">Products</a></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#" class="contact-trigger">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <button class="theme-toggle-btn" aria-label="Toggle theme">
+                        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+                        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69a.75.75 0 0 1 .981.981A10.503 10.503 0 0 1 12 22.5a10.5 10.5 0 0 1-10.5-10.5c0-4.307 2.54-8.023 6.28-9.762a.75.75 0 0 1 .819.162Z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="page-section">
+            <div class="hero-content">
+                <div class="main-headline">
+                    <span class="headline-1 gradient-text">International</span>
+                    <span class="headline-2 gradient-text">Container Co.</span>
+                    <span class="headline-3">Superior Waste Solutions</span>
+                </div>
+                <p class="sub-headline">Welcome to ICC, leaders in compactor and container manufacturing. Proudly made in the USA, our innovative products are designed for durability and efficiency.</p>
+                <div class="hero-buttons">
+                    <a href="#products" class="btn btn-primary">
+                        <span>Check our products</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                    </a>
+                    <a href="#" class="btn btn-secondary contact-trigger">
+                        <span>Get a Quote</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="page-section">
+            <div class="container">
+                <div class="content-page-container products-layout">
+                    <aside class="products-sidebar">
+                        <h3>Our Products</h3>
+                        <ul class="products-nav-list"></ul>
+                    </aside>
+                    <div class="product-content-area">
+                        <div class="product-detail-layout">
+                            <div class="product-detail-image-panel">
+                                <img id="detail-image" src="" alt="Product Image" onerror="this.onerror=null;this.src='https://placehold.co/600x600/333/FFF?text=Image';">
+                            </div>
+                            <div class="product-detail-info-panel">
+                                <h2 id="detail-title"></h2>
+                                <p id="detail-model"></p>
+                                <p id="detail-desc"></p>
+                                <div id="detail-tags"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="page-section">
+          <div class="container">
+            <div class="content-page-container">
+                <div class="about-layout">
+                    <img src="https://images.unsplash.com/photo-1553341306-b2d9390885e2?q=80&w=2070&auto=format&fit=crop" alt="ICC Manufacturing Facility" class="about-image" onerror="this.onerror=null;this.src='https://placehold.co/600x600/333/FFF?text=About+Us';">
+                    <div class="about-content">
+                        <h2 class="section-title">About Us</h2>
+                        <p style="color: var(--text-color-muted); line-height: 1.7;">
+                          International Container Co. has been a leader in American-made waste management solutions for over 20 years. Based in West Springfield, MA, we are dedicated to engineering and manufacturing the most durable and efficient compactors, containers, and specialty equipment on the market. Our commitment to quality craftsmanship and innovative design ensures our products meet the rigorous demands of any commercial, industrial, or residential application. We pride ourselves on customer satisfaction and providing superior solutions that last.
+                        </p>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </section>
+    </main>
+
+    <!-- CONTACT MODAL -->
+    <div class="contact-modal-overlay">
+      <div class="contact-modal-content">
+        <button class="close-modal-btn">&times;</button>
+        <h2 class="section-title">Contact Us</h2>
+        <form id="contact-form" class="contact-form">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+            </div>
+            <div class="form-field">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+            </div>
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="form-field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" placeholder="Phone Number">
+            </div>
+            <div class="form-field full-width">
+              <label for="companyName">Company Name</label>
+              <input type="text" id="companyName" name="companyName" placeholder="Company Name">
+            </div>
+            <div class="form-field full-width">
+              <label for="product">Product of Interest</label>
+              <select id="product" name="product">
+                <option value="">Select a Product of Interest</option>
+                <!-- Dynamically populated -->
+              </select>
+            </div>
+            <div class="form-field full-width">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Let us know how we can help..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn full-width">Submit</button>
+            <p id="form-status" class="full-width"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA ---
+        const productsData = [
+            { 
+                id: 'compactors', 
+                title: 'Compactors', 
+                subProducts: [
+                    { id: 'sc-100', name: 'Self-Contained Compactor', model: 'ICC-SC-100', description: 'Our SC-100 model is perfect for businesses with wet waste, such as restaurants and supermarkets, ensuring a clean and leak-proof solution.', imageUrl: 'https://placehold.co/600x600/9B72CB/FFFFFF?text=SC-100', tags: ['Restaurants', 'Supermarkets', 'Hospitals'] },
+                    { id: 's-200', name: 'Stationary Compactor', model: 'ICC-S-200', description: 'The S-200 is a powerhouse for dry waste like cardboard and general refuse, ideal for retail stores and industrial facilities.', imageUrl: 'https://placehold.co/600x600/9B72CB/FFFFFF?text=S-200', tags: ['Retail', 'Warehouses', 'Manufacturing'] },
+                    { id: 'ap-300', name: 'Apartment Compactor', model: 'ICC-AP-300', description: 'Designed for high-rise buildings, the AP-300 simplifies waste management for residential complexes.', imageUrl: 'https://placehold.co/600x600/9B72CB/FFFFFF?text=AP-300', tags: ['Apartments', 'Residential Complexes'] },
+                ]
+            },
+            { 
+                id: 'hook-lifts', 
+                title: 'Hook-Lifts', 
+                subProducts: [
+                    { id: 'hl-20', name: '20-Yard Hook-Lift', model: 'ICC-HL-20', description: 'A versatile 20-yard container for medium-sized construction and demolition projects.', imageUrl: 'https://placehold.co/600x600/4285F4/FFFFFF?text=HL-20', tags: ['Construction', 'Demolition'] },
+                    { id: 'hl-30', name: '30-Yard Hook-Lift', model: 'ICC-HL-30', description: 'Our most popular model, the HL-30 offers ample space for large-scale cleanups and commercial projects.', imageUrl: 'https://placehold.co/600x600/4285F4/FFFFFF?text=HL-30', tags: ['Large-scale cleanups', 'Commercial Projects'] },
+                    { id: 'hl-40', name: '40-Yard Hook-Lift', model: 'ICC-HL-40', description: 'The largest in our hook-lift line, designed for major industrial and construction jobs.', imageUrl: 'https://placehold.co/600x600/4285F4/FFFFFF?text=HL-40', tags: ['Industrial Sites', 'Major Construction'] },
+                ]
+            },
+            { 
+                id: 'roll-offs', 
+                title: 'Roll-Offs', 
+                subProducts: [
+                    { id: 'ro-15', name: '15-Yard Roll-Off', model: 'ICC-RO-15', description: 'Perfect for smaller cleanouts, roofing jobs, and landscaping projects.', imageUrl: 'https://placehold.co/600x600/D96570/FFFFFF?text=RO-15', tags: ['Landscaping', 'Roofing', 'Small Cleanouts'] },
+                    { id: 'ro-30', name: '30-Yard Roll-Off', model: 'ICC-RO-30', description: 'A robust container for significant construction debris and commercial waste.', imageUrl: 'https://placehold.co/600x600/D96570/FFFFFF?text=RO-30', tags: ['Commercial Projects', 'Construction Debris'] },
+                ]
+            },
+        ];
+
+        // --- ELEMENTS ---
+        const productNavList = document.querySelector('.products-nav-list');
+        const productSelect = document.querySelector('#contact-form select[name="product"]');
+        const themeToggleBtn = document.querySelector('.theme-toggle-btn');
+        const contactForm = document.getElementById('contact-form');
+        const formStatus = document.getElementById('form-status');
+        const contactModal = document.querySelector('.contact-modal-overlay');
+        const contactTriggers = document.querySelectorAll('.contact-trigger');
+        const closeModalBtn = document.querySelector('.close-modal-btn');
+
+        // --- FUNCTIONS ---
+
+        // Function to set the theme
+        const setTheme = (theme) => {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        };
+
+        // Function to display product details
+        const displayProductDetails = (categoryId, subProductId) => {
+            const category = productsData.find(c => c.id === categoryId);
+            if (!category) return;
+            const product = category.subProducts.find(p => p.id === subProductId);
+            if (!product) return;
+
+            document.getElementById('detail-image').src = product.imageUrl;
+            document.getElementById('detail-title').textContent = product.name;
+            document.getElementById('detail-model').textContent = `Model: ${product.model}`;
+            document.getElementById('detail-desc').textContent = product.description;
+            
+            const tagsContainer = document.getElementById('detail-tags');
+            tagsContainer.innerHTML = '';
+            product.tags.forEach((tag, index) => {
+                const tagEl = document.createElement('div');
+                tagEl.className = `usage-tag color-${(index % 5) + 1}`;
+                tagEl.textContent = tag;
+                tagsContainer.appendChild(tagEl);
+            });
+
+            document.querySelectorAll('.sub-product-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.productId === subProductId);
+            });
+        };
+        
+        // Modal control functions
+        const openContactModal = () => {
+            contactModal.classList.add('active');
+            document.body.classList.add('modal-open');
+        };
+
+        const closeContactModal = () => {
+            contactModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        };
+
+        // --- INITIALIZATION ---
+
+        // Populate Products Navigation & Form Select
+        productsData.forEach(category => {
+            const mainLi = document.createElement('li');
+            mainLi.className = 'main-product-item';
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'main-product-title';
+            titleDiv.innerHTML = `<span>${category.title}</span><svg class="arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>`;
+            mainLi.appendChild(titleDiv);
+            
+            const subUl = document.createElement('ul');
+            subUl.className = 'sub-product-list';
+            
+            category.subProducts.forEach(product => {
+                const subLi = document.createElement('li');
+                const link = document.createElement('a');
+                link.className = 'sub-product-link';
+                link.textContent = product.name;
+                link.href = '#';
+                link.dataset.productId = product.id;
+                link.dataset.categoryId = category.id;
+                subLi.appendChild(link);
+                subUl.appendChild(subLi);
+
+                const option = document.createElement('option');
+                option.value = product.name;
+                option.textContent = `${category.title} - ${product.name}`;
+                productSelect.appendChild(option);
+            });
+            
+            mainLi.appendChild(subUl);
+            productNavList.appendChild(mainLi);
+
+            titleDiv.addEventListener('click', () => {
+                mainLi.classList.toggle('open');
+            });
+        });
+
+        // Set initial theme from localStorage or default to dark
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(currentTheme);
+
+        // Display first product by default
+        if (productsData.length > 0 && productsData[0].subProducts.length > 0) {
+            const firstCat = productsData[0];
+            const firstProd = firstCat.subProducts[0];
+            displayProductDetails(firstCat.id, firstProd.id);
+            const firstNavItem = productNavList.querySelector('.main-product-item');
+            if (firstNavItem) {
+               firstNavItem.classList.add('open');
+            }
+        }
+        
+        // --- EVENT LISTENERS ---
+
+        // Theme Toggle
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        });
+        
+        // Product Navigation
+        productNavList.addEventListener('click', (e) => {
+            if (e.target.matches('.sub-product-link')) {
+                e.preventDefault();
+                displayProductDetails(e.target.dataset.categoryId, e.target.dataset.productId);
+            }
+        });
+        
+        // Contact Form Submission
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitBtn = contactForm.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            const formData = new FormData(contactForm);
+            const data = Object.fromEntries(formData.entries());
+            console.log('Form data submitted:', data);
+
+            // Simulate form submission
+            setTimeout(() => {
+                formStatus.textContent = "Thank you! Your message has been sent.";
+                formStatus.style.color = "#34A853";
+                contactForm.reset();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+
+                setTimeout(() => {
+                    formStatus.textContent = "";
+                    closeContactModal(); // Close modal on success
+                }, 2000);
+            }, 1500);
+        });
+
+        // Modal Triggers
+        contactTriggers.forEach(trigger => trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            openContactModal();
+        }));
+
+        closeModalBtn.addEventListener('click', closeContactModal);
+        
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) {
+                closeContactModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && contactModal.classList.contains('active')) {
+                closeContactModal();
+            }
+        });
+    });
+    </script>
+</body>
+</html>
